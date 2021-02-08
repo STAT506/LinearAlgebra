@@ -1,0 +1,307 @@
+---
+title: "More Linear Algebra"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(knitr)
+library(Matrix)
+```
+
+### Matrix Rank
+
+A matrix can be expressed as a combination of the column vectors. 
+
+\vfill
+
+```{r}
+X <- tibble(x_cat = sample(c('1','2'), 20, replace = T),
+            x_contin = runif(20))
+
+X_mat <- model.matrix(~x_cat + x_contin, data = X)
+rankMatrix(X_mat)
+```
+
+
+\vfill
+#### Vector space
+
+As previously mentioned, a matrix can be constructed as a linear combination of vectors. Formally, a vector space is the combination of vectors that can be constructed with a set of vectors.  A vector space. $V_n$ has the two following properties. First assume $\underline{x}$ and $\underline{y}$ are in $V_n$, then
+
+\vfill
+
+
+\vfill
+
+
+\vfill
+
+
+
+\vfill
+ If the spanning set are linearly independent, then the spanning set is a
+ 
+\newpage
+
+For purposes of this class, and most statistical applications, we will think about a vector space as the combination of column vectors from a matrix. This is referred to as a column space. Here the dimension of the column space corresponds to the rank of the matrix, $X$.
+
+\vfill
+
+#### Idempotent matrix
+
+
+\vfill
+
+```{r}
+I <- diag(3); I
+I %*% I
+
+P <- matrix(c(3,1,-6,-2),2,2); P
+P %*% P
+```
+
+\vfill
+
+A square matrix $P$ is also a projection operator if $P = P \times P$. 
+
+
+\vfill
+\newpage
+Let $\underline{y} \sim N(X \underline{\beta}, \sigma^2 I).$ We will derive this later, but consider the hat matrix $H = X(X^TX)^{-1} X^T$.
+
+\vfill
+
+Test $H \times H$
+
+\vfill
+\vfill
+
+Let $\underline{y} \sim N(X \underline{\beta}, \sigma^2 I).$ Then following a simple example from Boik, $X = \begin{bmatrix} 1 &1\\ 1 & 2\\ 1 & 4 \end{bmatrix}$ and $y = \begin{bmatrix} 2 \\ 1 \\ 3 \end{bmatrix}$.
+
+\vfill
+
+The OLS estimate of $\underline{\beta}$, $\hat{\underline{\beta}}_{OLS} = \begin{bmatrix} 1 \\ \frac{3}{7} \end{bmatrix}.$ 
+\vfill
+
+
+Formally, $\underline{\beta}_{OLS} = (X^TX)^{-1} X^T$, so 
+$$X \underline{\beta}_{OLS}= X(X^TX)^{-1} X^T \underline{y} = H \underline{y}$$
+
+\vfill
+
+```{r}
+X <- matrix(c(1, 1, 1, 1, 2, 4),3, 2)
+beta_hat <- c(1, 3/7)
+
+X %*% beta_hat
+
+H <- X %*% solve(t(X) %*% X) %*% t(X)
+y <- c(2, 1, 3)
+H %*% y
+```
+
+\newpage
+
+![Projection, obtained from Boik 505 notes](Proj.pdf){width=65%}
+
+\newpage
+
+
+### Properties of random vectors and matrices
+
+
+
+
+#### Expectation , Variance, Covariance
+
+Expectation of a vector is fairly simple, formally 
+$$E[\underline{y}] = \begin{pmatrix}E[y_1]\\ E[y_2]\\ \vdots \\ E[y_n]\end{pmatrix}= $$
+\vfill
+
+The same idea holds for a random matrix.
+
+\vfill
+
+If $\underline{y}$ is an $n \times 1$ vector and $\underline{x}$ is an $r \times 1$ vector, then.
+
+\vfill
+
+
+\vfill
+
+
+\vfill
+
+If $\underline{y} \sim N(\underline{\mu}, \Sigma)$ then the pdf of $\underline{y}$ is
+
+$$p(\underline{y}) = |\Sigma|^{-1/2} (2 \pi)^{n/2}$$
+
+\newpage
+
+###### Partitioned Matrices
+
+Now consider splitting the sampling units into two partitions such that $\underline{y} = \begin{bmatrix} \underline{y}_1 \\ \underline{y}_2 \end{bmatrix}$. Then,
+
+\vfill
+
+$$\begin{bmatrix}\underline{y}_1 \\ \underline{y}_2 \end{bmatrix} \sim N \left( \begin{bmatrix}X_1 \\ X_2 \end{bmatrix} \underline{\beta}  ,
+\begin{bmatrix} \Sigma_{11} & \Sigma_{12} \\ \Sigma_{12} & \Sigma_{22} \end{bmatrix}\right)$$
+
+\vfill
+
+Fundamentally, there is no change to the model, we have just created "groups" by partitioning the model. Do note that $\Sigma_{11}$ is an $n_1 \times n_1$ covariance matrix.
+
+$$\Sigma_{11} = \begin{bmatrix}
+\sigma^2_1 & \sigma_{12} & \cdots &\sigma_{1n_1} \\
+\sigma_{22} & \sigma^2_2 &   \cdots &\sigma_{2n_1} \\
+\sigma_{31} & \sigma_{32} &   \ddots &\sigma_{3n_1} \\
+\vdots & \vdots &   \ddots &\vdots \\
+\sigma_{n_1 1} & \sigma_{n_1 2} &   \ddots &\sigma^2_{n_1} 
+\end{bmatrix}$$
+
+\vfill
+
+
+However, while $\Sigma_{12} = \Sigma_{21}^T$, neither of these are necessarily symmetric matrices. They also do not have any variance components, but rather just covariance terms. $\Sigma_{12}$ will be an $n_1 \times n_2$ matrix.
+
+$$\Sigma_{11} = \begin{bmatrix}
+\sigma_{1,n_1 +1} & \sigma_{1,n_1 + 2} & \cdots &\sigma_{1,n_1 + n_2} \\
+\sigma_{2, n_1 + 1} & \sigma_{2, n1 + 2} &   \cdots &\sigma_{2,n_1 + n_2} \\
+\vdots & \vdots &   \ddots &\vdots \\
+\sigma_{n_1, n_1 + 1} & \sigma_{n_1, n_1 + 2} &   \ddots &\sigma_{n_1, n_1 + n_2} 
+\end{bmatrix}$$
+
+\newpage
+
+### Conditional Multivariate Normal
+
+Let $\underline{y_1}|\underline{Y_2}=\underline{y_2}$ be a conditional distribution for $\underline{y_1}$ given that $\underline{y_2}$ is known. Then
+
+\vfill
+
+$$\underline{y_1}|\underline{y_2} \sim N \left( X_1\beta + \Sigma_{12} \Sigma_{22}^{-1}\left(\underline{y_2} - X_2\beta \right), \Sigma_{11} - \Sigma_{12} \Sigma_{22}^{-1} \Sigma_{21} \right)$$
+\vfill
+
+Now let's consider a few special cases (in the context of the DC housing dataset.)
+
+\vfill
+
+1. Let $\Sigma = \sigma^2 I$, then the batch of houses in group 1 are conditionally dependent from the houses in group 2 and 
+
+$$\underline{y_1}|\underline{y_2}  \sim N \left( X_1\beta, \Sigma_{11} \right)$$
+\vfill
+
+2. Otherwise, let $\Sigma = \sigma^2 H$ and we'll assume $\Sigma_{12}$ has some non-zero elements. Then we have a more precise estimate of $\underline{y_1}$ as $\Sigma_{11} - \Sigma_{12} \Sigma_{22}^{-1} \Sigma_{21}$ will be "less than" $\Sigma_{11}$ (that positive definite thing). Furthermore, the mean will shift such that highly correlated observations such as houses in close proximity (local model structure) will tend to differ from the global mean in the same fashion.
+
+\vfill
+
+\newpage
+
+3. Let $n_1 = 1$ and $n_2 = 1$, then
+
+$$\begin{bmatrix}y_1 \\ y_2 \end{bmatrix} \sim N \left( \begin{bmatrix}\mu_1 \\ \mu_2 \end{bmatrix}   ,
+\begin{bmatrix} \sigma^2_{1} & \sigma_{12} \\ \sigma_{12} & \sigma_{2}^2 \end{bmatrix}\right)$$
+
+and
+
+$$y_1|y_2 \sim N \left( \mu_1 + \sigma_{12} (\sigma_{2}^{2})^{-1}\left(y_2 - \mu_2 \right), \sigma_{1}^2 - \sigma_{12} (\sigma_{2}^{2})^{-1} \sigma_{21} \right)$$
+\vfill
+
+Now consider an illustration for a couple simple scenarios. Let $\mu_1 = \mu_2 = 0$ and $\sigma^2_1 = \sigma^2_2 = 1$. Now assume $y_2 = -2$ and we compare the conditional distribution for a few values of $\sigma_{12}$.
+\vfill
+
+```{r, echo = F}
+mu1 <- 0
+mu2 <- 0
+sigmasq1 <- sigmasq2 <- 1
+
+dat_seq <- seq(-4,4, by = .01)
+n_seq <- length(dat_seq)
+tibble(group = rep(c('y2 = -2; sigma12 = 0',
+                     'y2 = -2; sigma12 = .2',
+                     'y2 = -2; sigma12 = .8'), each = n_seq), 
+dens = c(dnorm(dat_seq, mu1 + 0*(1/sigmasq2)*(-2 - mu2),
+               sqrt(sigmasq1 - 0 * (1/sigmasq2)*0 )), 
+         dnorm(dat_seq, mu1 + .2*(1/sigmasq2)*(-2 - mu2),
+               sqrt(sigmasq1 - .2 * (1/sigmasq2)*2 )), 
+         dnorm(dat_seq, mu1 + .8*(1/sigmasq2)*(-2 - mu2),
+               sqrt(sigmasq1 - .8 * (1/sigmasq2)*.8 ))), 
+y = rep(dat_seq, 3)) %>% 
+  ggplot(aes(x=y, y = dens, group = group, color = group)) +
+  geom_line() + theme_bw()
+```
+
+
+\vfill
+
+One last note, the marginal distributions for any partition $\underline{y_1}$ are quite simple.
+
+$$\underline{y_1} \sim N \left( X_1\beta, \Sigma_{11} \right)$$
+or just
+
+$$y_1 \sim N \left( X_1\beta, \sigma^2_{1} \right)$$
+if $y_1$ is scalar.
+
+\newpage
+
+#### OLS / WLS
+
+Let $\underline{y} \sim N(X \underline{\beta}, \Sigma),$ then the least squares estimate of $\underline{\beta}$ is the minimizer of
+
+\vfill
+
+\vfill
+
+\vfill
+
+\vfill
+
+\newpage
+
+#### Linear Functions and Contrasts
+
+Suppose we are interest in a linear combination of the model coefficients, such as $\psi = \beta_0 + \beta_1$ or $\psi = \beta_2 - \beta_3$. These can be constructed with a matrix C, s.t.
+
+
+\vfill
+
+
+\vfill
+
+Contrasts are common in ANOVA models, where $y_{ij} = \mu + \tau_i + \epsilon_{ij}$, where $\tau_i$ is the effect for treatment $i$
+
+\vfill
+
+A linear function is __estimable__ if a linear unbiased estimator of the function exists. Mathematically, $\psi = \underline{c}^T \underline{\beta}$ is estimable if there exists a statistic, $\hat{\psi} = A^T \underline{y} + \underline{k}$ such that $E[\hat{\psi}] = \psi$.
+
+\vfill
+
+
+#### Best Linear Unbiased Estimator (BLUE)
+
+Suppose that $C^T \underline{\beta}$ is an estimable function. Let $\hat{\psi}_c$ be any unbiased estimator of $C^T \underline{\beta}$. Meaning
+
+1. $\hat{\psi}_c = A^t \underline{y} + \underline{l}$ and
+
+2. $E[\hat{\psi}_c]= \underline{c}^t \underline{\beta} \;\; \forall \beta$
+
+\vfill
+
+\vfill
+
+
+\vfill
+
+
+\vfill
+
+
+#### Gauss - Markov Theorem
+
+The Gauss-Markov theorem typically states that if $\underline{y} \sim N(X \underline{\beta}, \sigma^2I)$, then the OLS estimator is the BLUE.  It can also be extended to the GLS setting, see Boik.
+
+\vfill
+
+It is important to mention a lesser known theorem (particularly in the classical linear models setting), __Stein's Paradox__ The associated James–Stein estimator dominates the "ordinary" least squares approach, meaning the James-Stein estimator has a lower or equal mean squared error than OLS. So biased, but lower overall MSE. __more later in the context of shrinkage and hierarchical models__.
